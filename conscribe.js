@@ -5,17 +5,41 @@
 
 var fs = require("fs");
 var path = require("path");
-
+var schmea;
 // read in JSON file...
-var file = __dirname + '/test/schema.json';
+var schema_file = __dirname + '/test/schema.json';
 
-fs.readFile(file, 'utf8', function (err, data) {
+fs.readFile(schema_file, 'utf8', function (err, data) {
   if (err) {
     console.log('Error: ' + err);
     return;
   }
 
-  data = JSON.parse(data);
+  schema = JSON.parse(data);
 
-  console.dir(data);
+  
 });
+
+var examples_files = __dirname + '/text/examples.md';
+
+fs.readFile(examples_file,'utf8', function(err,data){
+
+if (err) {
+    console.log('Error: ' + err);
+    return;
+  }
+
+  examples = JSON.parse(data);
+});
+
+
+for(var i in schema.schema){
+	schem = schema.schema;
+
+	var composedString;
+
+	composedString = "##" + i "\n\n";
+	composedString = "Purpose : " + schem[i].purpose + "\n\n";
+	composedString = "";
+	examples.replace('/<' + i + '>/g', composedString);
+}
