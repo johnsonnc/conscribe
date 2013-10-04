@@ -2,12 +2,18 @@
 
 Combine JSON Schema and Markdown
 
+## The issue
+
+In trying to find a solution to combine schema based API/ OWF Channels and documentation, it was found that JSDOC wasn't quite up to
+the task of documenting it how we thought it should. 
+
 ## Getting Started
-Install the module with: `npm install conscribe`
+
+Install the module with: `npm install conscribe` (Not published yet so I wouldn't try it.)
 
 ```javascript
 var conscribe = require('conscribe');
-conscribe.awesome(); // "awesome"
+conscribe.[yet to be decided](); 
 ```
 
 ## Documentation
