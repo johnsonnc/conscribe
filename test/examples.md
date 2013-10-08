@@ -356,7 +356,7 @@ Caption of Example 2
 Caption of Example 2
 
 
-<transaction.complete> 
+<map.transaction.complete> 
 ### Example 1
 
 	{
