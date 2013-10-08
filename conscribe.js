@@ -148,9 +148,11 @@ conscript.html = function() {
 conscript.JSONSchema = function(args) {
 	var channels = conscript.data.input.schemaChannels;
 	var output;
+	
 	for(var i in channels){
 		var channel = channels[i];
-
+		output[i] = i;
+		output[i] = 
 	}
 };
 
