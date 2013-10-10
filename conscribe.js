@@ -137,7 +137,7 @@ conscript.markdown = function (args) {
 		composedString += "\t {\n";
 		var extensionText;
 		var extendedHeader = composedString;
-		var newChannel = composedString;
+		newChannel = composedString;
 		// are always seperate extensions... ??
 		combined += composedString;
 		var isExtended = channels[i].extension;
@@ -248,7 +248,7 @@ conscript.markdown = function (args) {
 				extendedOutput += newChannelExtensions[y][z];
 			}
 			extendedOutput += "\n\n # Existing Channels \n\n";
-			for (var z in extendedChannelExtensions[y]) {
+			for (z in extendedChannelExtensions[y]) {
 				extendedOutput += extendedChannelExtensions[y][z].header;
 				extendedOutput += "\t }\n\n";
 				extendedOutput += extendedChannelExtensions[y][z].desc;
@@ -256,7 +256,7 @@ conscript.markdown = function (args) {
 			newChannelExtensions[y] = {};
 		} else {
 			extendedOutput += "# Existing Channels \n\n";
-			for (var z in extendedChannelExtensions[y]) {
+			for (z in extendedChannelExtensions[y]) {
 
 				extendedOutput += extendedChannelExtensions[y][z].header;
 				extendedOutput += "\t } \n\n";
