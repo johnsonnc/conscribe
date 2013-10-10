@@ -373,7 +373,7 @@ conscript.JSONSchema = function (args) {
 
 conscript.fixture = function (args) {
 	var schema = conscript.data.input.schema;
-	var output = "var emp = emp || {};\n emp.cmwaApiHandler.fixture = ";
+	var output = "var rand = rand || {};\n rand.cmwaApiHandler.fixture = ";
 	output += JSON.stringify(schema, null, 4);
 	fs.writeFileSync("../cmwa-api-fixture.debug.js", output);
 };
