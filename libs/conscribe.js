@@ -6,7 +6,7 @@
 
 
 var fs = require("fs");
-//var markdown = require("markdown").markdown;
+var markdown = require("markdown").markdown;
 
 var conscript = {};
 
@@ -37,8 +37,9 @@ conscript.reader = function (args) {
 
 	var examples_files = __dirname + '/../examples.md';
 	examples = fs.readFileSync(examples_files, 'utf8');
+	var mustash = fs.readFileSync(__dirname + '/mustash.tmpl', 'utf8');
 
-
+	conscript.data.input.mustash = mustash;
 	conscript.data.input.schema = schema;
 	conscript.data.input.schemaChannels = schema.channels;
 	conscript.data.input.examples = examples;
@@ -203,9 +204,7 @@ conscript.markdown = function (args) {
 				}
 			} else if (channels[i].extension !== true) {
 				//base line... 
-				baseString += composedString + loopString;
-				baseString += "\t }\n\n";
-				baseString += loopTempString;
+				
 
 			} else {}
 
@@ -214,7 +213,9 @@ conscript.markdown = function (args) {
 			combined += loopString;
 			combinedTemp += loopTempString;
 		}
-
+		baseString += composedString + loopString;
+				baseString += "\t }\n\n";
+				baseString += loopTempString;
 
 		//base line... 
 
@@ -239,6 +240,14 @@ conscript.markdown = function (args) {
 
 	fs.writeFileSync("baseLine.md", baseLineExamples);
 	fs.writeFileSync("combined.md", combinedExamples);
+	
+	baseLineExamples = markdown.toHTML(baseLineExamples);
+	combinedExamples = markdown.toHTML(combinedExamples);
+	baseLineExamples = conscript.data.input.mustash + baseLineExamples;
+	combinedExamples = conscript.data.input.mustash + combinedExamples;
+	fs.writeFileSync("baseLine.html", baseLineExamples);
+	fs.writeFileSync("combined.html", combinedExamples);
+	
 	// the fun part... 
 	for (var y in extendedChannelExtensions) {
 		var extendedOutput = "";
@@ -266,6 +275,9 @@ conscript.markdown = function (args) {
 
 		}
 		fs.writeFileSync(y + ".md", extendedOutput);
+		extendedOutput = markdown.toHTML(extendedOutput);		
+		extendedOutput = conscript.data.input.mustash + extendedOutput;
+		fs.writeFileSync(y + ".html", extendedOutput);
 	}
 };
 
