@@ -1,4 +1,4 @@
-# conscribe [![Build Status](https://secure.travis-ci.org/johnsonnc/conscribe.png?branch=master)](http://travis-ci.org/johnsonnc/conscribe) [![Dependency Status](https://gemnasium.com/johnsonnc/conscribe.png)](https://gemnasium.com/johnsonnc/conscribe)
+# conscribe [![Build Status](https://secure.travis-ci.org/johnsonnc/conscribe.png?branch=master)](http://travis-ci.org/johnsonnc/conscribe) [![Dependency Status](https://gemnasium.com/johnsonnc/conscribe.png)](https://gemnasium.com/johnsonnc/conscribe) [![NPM version](https://badge.fury.io/js/conscribe.png)](http://badge.fury.io/js/conscribe)
 
 
 Combine JSON Schema and Markdown for the use of documenting [OWF Channels](https://github.com/ozoneplatform/owf), in particular [CMWAPI](http://www.cmwapi.org/)
