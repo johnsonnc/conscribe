@@ -7,45 +7,239 @@
 
 var fs = require("fs");
 var markdown = require("markdown").markdown;
+var argv = require("optimist").usage("Usage: $0 -c [config file]")
+	.demand(["c"])
+	.argv;
 
 var conscript = {};
 
+conscript.config = JSON.parse(fs.readFileSync(argv.c, "utf8"));
+
+//console.dir(conscript.config);
+
+
 /**
- * Here is our operation order...
+ * Just kidding!
  *
- * 1. read in files.
- * 2. generate MD file.
- * 3. generate JSON (tv4) Schema
- * 4. output HTML
- * 5. output fixture
- * 6. output JAMINE tests ?
+ * PHASE 1 (init):
+ *  get all of our files, assign and read in.
  *
+ * PASS 1 (combined):
+ * initialize each channel.
+ *
+ * generate channel examples
+ * generate channel payloads
+ * generate property descriptions
+ * generate channel headers
+ *
+ * mix and serve.
+ *
+ * PASS 2 (extensions):
+ *
+ * check each channel
+ *
+ * generate channel examples
+ * generate channel payloads
+ * generate property descriptions
+ * generate channel headers
+ *
+ * repeat with per extension.
+ *
+ * PASS 3 (baseline):
+ *
+ * check each channel
+ *
+ * generate channel examples
+ * generate channel payloads
+ * generate property descriptions
+ * generate channel headers
+ *
+ * PASS 4 (validator/fixture):
+ *
+ * yep.
+ *
+ * PASS 5 Cleanup.
  */
 
 conscript.data = {};
 conscript.data.input = {};
-conscript.reader = function (args) {
+
+var schema_file = conscript.config.baseDirectory + conscript.config.schema;
+var data = fs.readFileSync(schema_file, "utf8");
+
+conscript.data.input.schema = JSON.parse(data);
+
+conscript.phaseOne = function() {
+	/**
+	 *  PASS 1 (combined):
+	 * initialize each channel.
+	 *
+	 * generate channel examples
+	 * generate channel payloads
+	 * generate property descriptions
+	 * generate channel headers
+	 *
+	 * mix and serve.
+	 */
+	var data = conscript.data.input.schema;
+	conscript.exampleInit({
+		mode: "combined",
+		channels: data.channels
+	});
+};
+
+conscript.phaseTwo = function() {
+	var schema = fs.readFileSync(schema_file, "utf8");
+
+	conscript.data.input.schema = JSON.parse(schema);
+
+	var data = conscript.data.input.schema;
+
+	for (var i in data.channels) {
+		if (data.channels[i].extension === true) {
+			delete data.channels[i];
+		} else {
+			for (var x in data.channels[i].payload) {
+
+				if (data.channels[i].payload[x].extension === true) {
+					delete data.channels[i].payload[x];
+				} else if (data.channels[i].payload[x].type === "object") {
+					if (data.channels[i].payload[x].properties !== undefined && data.channels[i].payload[x].properties !== null) {
+						data.channels[i].payload[x].properties = conscript.recursiveFilter(data.channels[i].payload[x].properties);
+					}
+				}
+			}
+		}
+
+	}
+
+	conscript.exampleInit({
+		mode: "baseline",
+		channels: data.channels
+	});
+	for (var y in data.channels) {
+		// generate payloads... 
+	}
+};
+
+
+conscript.phaseThree = function() {
+	var schema = fs.readFileSync(schema_file, "utf8");
+
+	conscript.data.input.schema = JSON.parse(schema);
+
+	var data = conscript.data.input.schema;
+
+
+	for (var i in data.channels) {
+
+	}
+
+};
+conscript.recursiveFilter = function(args) {
+
+	for (var i in args) {
+		if (args[i].extension === true) {
+			delete args[i];
+		} else if (args[i].type === "object") {
+			if (args[i].properties !== undefined && args[i].properties !== null) {
+				args[i].properties = conscript.recursiveFilter(args[i].properties);
+			}
+		}
+	}
+	return args;
+};
+
+conscript.exampleInit = function(args) {
+	var mode = args.mode;
+	var channels = args.channels;
+	var payload;
+	var baseDirectory = conscript.config.baseDirectory +
+		conscript.config.docsDirectory +
+		conscript.config.version + "/" +
+		"examples/" + mode + "/";
+
+	for (var i in channels) {
+		var channel = channels[i];
+		var data = "## Example 1 \n\n";
+		if (channel !== undefined && channel !== null) {
+			for (var x in channel.payload) {
+				payload = channel.payload;
+				// why not just replace the object... 
+				if (payload[x] !== undefined && payload[x] !== null) {
+					payload[x] = conscript.randomGen(payload[x]);
+				}
+			}
+			//now our payload should be filled in... 
+			data += "\t";
+			data += JSON.stringify(payload, null, "\t\t");
+			data = data.replace("\n}", "\n\t}");
+			fs.writeFileSync(baseDirectory + i + ".md", data, "utf8");
+		}
+	}
+
+};
+
+conscript.randomGen = function(args) {
+	var r;
+	console.dir(args);
+	switch (args.type) {
+		case "string":
+			var text = "";
+			var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			for (var y = 0; y < 5; y++) {
+				text += possible.charAt(Math.floor(Math.random() * possible.length));
+			}
+			r = text;
+			break;
+		case "number":
+			r = Math.floor(Math.random() * 2);
+			break;
+		case "boolean":
+			r = (Math.random() < 0.5);
+			break;
+		case "object":
+			if (args.properties !== undefined && args.properties !== null) {
+				r = {};
+				for (var x in args.properties) {
+					r[x] = conscript.randomGen(args.properties[x]);
+				}
+			} else {
+				r = {};
+			}
+			break;
+		default:
+			break;
+	}
+	return r;
+};
+
+conscript.init = (function(args) {
+
+	conscript.phaseOne();
+	conscript.phaseTwo();
+})();
+
+conscript.reader = function(args) {
+
+
 	var examples;
 	var schema;
 	// read in json file...
 
-	var schema_file = __dirname + '/../schema.json';
-	var data = fs.readFileSync(schema_file, 'utf8');
-	schema = JSON.parse(data);
 
 
-
-	var examples_files = __dirname + '/../examples.md';
+	/*	var examples_files = __dirname + '/../examples.md';
 	examples = fs.readFileSync(examples_files, 'utf8');
 	var mustash = fs.readFileSync(__dirname + '/mustash.tmpl', 'utf8');
-
+*/
 	conscript.data.input.mustash = mustash;
 	conscript.data.input.schema = schema;
 	conscript.data.input.schemaChannels = schema.channels;
 	conscript.data.input.examples = examples;
 };
 
-conscript.markdown = function (args) {
+conscript.markdown = function(args) {
 
 	var examples = conscript.data.input.examples,
 		channels = conscript.data.input.schemaChannels;
@@ -204,7 +398,7 @@ conscript.markdown = function (args) {
 				}
 			} else if (channels[i].extension !== true) {
 				//base line... 
-				
+
 
 			} else {}
 
@@ -214,8 +408,8 @@ conscript.markdown = function (args) {
 			combinedTemp += loopTempString;
 		}
 		baseString += composedString + loopString;
-				baseString += "\t }\n\n";
-				baseString += loopTempString;
+		baseString += "\t }\n\n";
+		baseString += loopTempString;
 
 		//base line... 
 
@@ -240,14 +434,14 @@ conscript.markdown = function (args) {
 
 	fs.writeFileSync("baseLine.md", baseLineExamples);
 	fs.writeFileSync("combined.md", combinedExamples);
-	
+
 	baseLineExamples = markdown.toHTML(baseLineExamples);
 	combinedExamples = markdown.toHTML(combinedExamples);
 	baseLineExamples = conscript.data.input.mustash + baseLineExamples;
 	combinedExamples = conscript.data.input.mustash + combinedExamples;
 	fs.writeFileSync("baseLine.html", baseLineExamples);
 	fs.writeFileSync("combined.html", combinedExamples);
-	
+
 	// the fun part... 
 	for (var y in extendedChannelExtensions) {
 		var extendedOutput = "";
@@ -275,20 +469,20 @@ conscript.markdown = function (args) {
 
 		}
 		fs.writeFileSync(y + ".md", extendedOutput);
-		extendedOutput = markdown.toHTML(extendedOutput);		
+		extendedOutput = markdown.toHTML(extendedOutput);
 		extendedOutput = conscript.data.input.mustash + extendedOutput;
 		fs.writeFileSync(y + ".html", extendedOutput);
 	}
 };
 
-conscript.html = function () {
+conscript.html = function() {
 	var mdFile = __dirname + "output.md";
 	var md = fs.readFileSync(mdFile, 'utf_8');
 	fs.writeFileSync("output.html", markdown.toHMTL(md));
 
 };
 
-conscript.JSONSchema = function (args) {
+conscript.JSONSchema = function(args) {
 	var channels = conscript.data.input.schemaChannels;
 	var output = {};
 
@@ -383,9 +577,9 @@ conscript.JSONSchema = function (args) {
 
 };
 
-conscript.fixture = function (args) {
+conscript.fixture = function(args) {
 	var schema = conscript.data.input.schema;
-	var output = "var emp = emp || {};\n emp.cmwaApiHandler.fixture = ";
+	var output = "var rand = rand || {};\n rand.cmwaApiHandler.fixture = ";
 	output += JSON.stringify(schema, null, 4);
 	fs.writeFileSync("../cmwa-api-fixture.debug.js", output);
 };
@@ -393,9 +587,9 @@ conscript.fixture = function (args) {
 
 conscript.helpers = {};
 
-conscript.reader();
+/*conscript.reader();
 conscript.markdown(true);
 conscript.JSONSchema();
-conscript.fixture();
+conscript.fixture();*/
 
 //console.dir(output);

@@ -10,7 +10,7 @@ var markdown = require("markdown").markdown;
 var argv = require("optimist").usage("Usage: $0 -c [config file]")
 	.demand(["c"])
 	.argv;
-
+var colors = require("colors");
 var conscript = {};
 
 conscript.config = JSON.parse(fs.readFileSync(argv.c, "utf8"));
@@ -69,7 +69,7 @@ var data = fs.readFileSync(schema_file, "utf8");
 
 conscript.data.input.schema = JSON.parse(data);
 
-conscript.phaseOne = function() {
+conscript.phaseOne = function () {
 	/**
 	 *  PASS 1 (combined):
 	 * initialize each channel.
@@ -88,7 +88,7 @@ conscript.phaseOne = function() {
 	});
 };
 
-conscript.phaseTwo = function() {
+conscript.phaseTwo = function () {
 	var schema = fs.readFileSync(schema_file, "utf8");
 
 	conscript.data.input.schema = JSON.parse(schema);
@@ -123,7 +123,7 @@ conscript.phaseTwo = function() {
 };
 
 
-conscript.phaseThree = function() {
+conscript.phaseThree = function () {
 	var schema = fs.readFileSync(schema_file, "utf8");
 
 	conscript.data.input.schema = JSON.parse(schema);
@@ -136,7 +136,8 @@ conscript.phaseThree = function() {
 	}
 
 };
-conscript.recursiveFilter = function(args) {
+
+conscript.recursiveFilter = function (args) {
 
 	for (var i in args) {
 		if (args[i].extension === true) {
@@ -150,7 +151,7 @@ conscript.recursiveFilter = function(args) {
 	return args;
 };
 
-conscript.exampleInit = function(args) {
+conscript.exampleInit = function (args) {
 	var mode = args.mode;
 	var channels = args.channels;
 	var payload;
@@ -158,8 +159,13 @@ conscript.exampleInit = function(args) {
 		conscript.config.docsDirectory +
 		conscript.config.version + "/" +
 		"examples/" + mode + "/";
-
+	var channelLen = Object.keys(channels).length;
+	process.stdout.write("Initalizing Examples for " + mode.red + " : 0/" + channelLen.green + "\r");
+	var w = 0;
 	for (var i in channels) {
+		w++;
+		process.stdout.write("Initalizing Examples for " + mode.red + " : " + w.toString().red + "/" + channelLen.toString().green + " : " + i + "\r");
+
 		var channel = channels[i];
 		var data = "## Example 1 \n\n";
 		if (channel !== undefined && channel !== null) {
@@ -177,69 +183,63 @@ conscript.exampleInit = function(args) {
 			fs.writeFileSync(baseDirectory + i + ".md", data, "utf8");
 		}
 	}
-
+	process.stdout.write("\n");
 };
 
-conscript.randomGen = function(args) {
+conscript.randomGen = function (args) {
 	var r;
-	console.dir(args);
+
 	switch (args.type) {
-		case "string":
-			var text = "";
-			var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-			for (var y = 0; y < 5; y++) {
-				text += possible.charAt(Math.floor(Math.random() * possible.length));
+	case "string":
+		var text = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		for (var y = 0; y < 5; y++) {
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		}
+		r = text;
+		break;
+	case "number":
+		r = Math.floor(Math.random() * 2);
+		break;
+	case "boolean":
+		r = (Math.random() < 0.5);
+		break;
+	case "object":
+		if (args.properties !== undefined && args.properties !== null) {
+			r = {};
+			for (var x in args.properties) {
+				r[x] = conscript.randomGen(args.properties[x]);
 			}
-			r = text;
-			break;
-		case "number":
-			r = Math.floor(Math.random() * 2);
-			break;
-		case "boolean":
-			r = (Math.random() < 0.5);
-			break;
-		case "object":
-			if (args.properties !== undefined && args.properties !== null) {
-				r = {};
-				for (var x in args.properties) {
-					r[x] = conscript.randomGen(args.properties[x]);
-				}
-			} else {
-				r = {};
-			}
-			break;
-		default:
-			break;
+		} else {
+			r = {};
+		}
+		break;
+	default:
+		break;
 	}
 	return r;
 };
 
-conscript.init = (function(args) {
+conscript.init = (function (args) {
 
 	conscript.phaseOne();
 	conscript.phaseTwo();
 })();
 
-conscript.reader = function(args) {
+conscript.reader = function (args) {
 
 
 	var examples;
 	var schema;
 	// read in json file...
 
-
-
-	/*	var examples_files = __dirname + '/../examples.md';
-	examples = fs.readFileSync(examples_files, 'utf8');
-	var mustash = fs.readFileSync(__dirname + '/mustash.tmpl', 'utf8');
-*/
 	conscript.data.input.mustash = mustash;
 	conscript.data.input.schema = schema;
 	conscript.data.input.schemaChannels = schema.channels;
 	conscript.data.input.examples = examples;
 };
 
-conscript.markdown = function(args) {
+conscript.markdown = function (args) {
 
 	var examples = conscript.data.input.examples,
 		channels = conscript.data.input.schemaChannels;
@@ -475,15 +475,18 @@ conscript.markdown = function(args) {
 	}
 };
 
-conscript.html = function() {
+conscript.html = function () {
 	var mdFile = __dirname + "output.md";
 	var md = fs.readFileSync(mdFile, 'utf_8');
 	fs.writeFileSync("output.html", markdown.toHMTL(md));
 
 };
 
-conscript.JSONSchema = function(args) {
-	var channels = conscript.data.input.schemaChannels;
+conscript.JSONSchema = function (args) {
+	var schema = fs.readFileSync(schema_file, "utf8");
+
+	conscript.data.input.schema = JSON.parse(schema);
+	var channels = conscript.data.input.schema.channels;
 	var output = {};
 
 	function recurseAssist(args) {
@@ -577,19 +580,26 @@ conscript.JSONSchema = function(args) {
 
 };
 
-conscript.fixture = function(args) {
-	var schema = conscript.data.input.schema;
-	var output = "var rand = rand || {};\n rand.cmwaApiHandler.fixture = ";
-	output += JSON.stringify(schema, null, 4);
-	fs.writeFileSync("../cmwa-api-fixture.debug.js", output);
+conscript.fixture = function (args) {
+	var schema = fs.readFileSync(schema_file, "utf8");
+
+	conscript.data.input.schema = JSON.parse(schema);
+
+
+	schema = conscript.data.input.schema;
+	var file = conscript.config.baseDirectory + conscript.config.generation.fixture.where + conscript.config.generation.fixture.file;
+	var output = conscript.config.generation.fixture.header;
+	output += JSON.stringify(schema, null, 4) + ";";
+	fs.writeFileSync(file, output, "utf8");
+	console.log("CMWA Fixture Successfully Written @" + file.green);
 };
 
 
 conscript.helpers = {};
 
 /*conscript.reader();
-conscript.markdown(true);
+conscript.markdown(true); */
 conscript.JSONSchema();
-conscript.fixture();*/
+conscript.fixture();
 
-//console.dir(output);
+//console.dir(output);*/
