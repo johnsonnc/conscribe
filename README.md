@@ -1,4 +1,4 @@
-# conscribe [![Build Status](https://secure.travis-ci.org/johnsonnc/conscribe.png?branch=master)](http://travis-ci.org/johnsonnc/conscribe) [![Dependency Status](https://gemnasium.com/johnsonnc/conscribe.png)](https://gemnasium.com/johnsonnc/conscribe) [![NPM version](https://badge.fury.io/js/conscribe.png)](http://badge.fury.io/js/conscribe)
+# conscribe [![Build Status](https://secure.travis-ci.org/johnsonnc/conscribe.png?branch=master)](http://travis-ci.org/johnsonnc/conscribe) [![Dependency Status](https://gemnasium.com/johnsonnc/conscribe.png)](https://gemnasium.com/johnsonnc/conscribe) [![NPM version](https://badge.fury.io/js/conscribe.png)](http://badge.fury.io/js/conscribe) [![Coverage Status](https://coveralls.io/repos/johnsonnc/conscribe/badge.png)](https://coveralls.io/r/johnsonnc/conscribe)
 
 
 Using a Schema documents to generate a JSON Schema for Validation, Fixture for API Handers, 
