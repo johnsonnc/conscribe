@@ -1,0 +1,60 @@
+{
+
+	"title": "CMWA Spec / Doc / Validator Generator",
+	"baseDir": "./",
+	"schemaFile": "/schema.json",
+	"generate": {
+		"docs": {
+			"baseline": {
+				"markdown": true,
+				"html": true,
+				"pdf": true
+			},
+			"combined": {
+				"markdown": true,
+				"html": true,
+				"pdf": true
+			},
+			"extensions": {
+				"markdown": true,
+				"html": true,
+				"pdf": true
+			},
+			"consolidatedExtensions": {
+				"markdown": true,
+				"html": true,
+				"pdf": true
+			}
+		},
+		"js": {
+			"JSONSchemas": true,
+			"fixtures": true,
+			"withExtensions": true
+		}
+
+	},
+	"examplesDir": {
+		"baseline": "cmwa/1.1/examples/baseline",
+		"combined": "cmwa/1.1/examples/epVariant",
+		"extensions": "cmwa/1.1/examples/epExtensions/bySpec",
+		"extensionsConsolidated": "/text/resources/docs/cmwa/1.1/examples/epExtensions"
+	},
+	"headers": {
+		"baseline": "/test/resources/docs/cmwa/1.1",
+		"combined": "/test/resources/docs/cmwa/1.1",
+		"extensions": "/test/resources/docs/cmwa/1.1/extensions",
+		"extensionsConsolidated": "/text/resources/docs/cmwa/1.1/extensions"
+	},
+	"style": {
+		"css": "/test/resources/docs/cmwa/resources/css/html.css"
+	},
+	"ignore": {
+		"channels": []
+	},
+	"output": {
+		"baseline": "/test/resources/docs/published/cmwa/1.1/baseline",
+		"combined": "/test/resources/docs/published/cmwa/1.1/epVariant",
+		"extensions": "/test/resources/docs/published/cmwa/1.1/epExtensions/bySpec",
+		"extensionsConsolidated": "/test/resources/docs/published/cmwa/1.1/epExtensions"
+	}
+}
